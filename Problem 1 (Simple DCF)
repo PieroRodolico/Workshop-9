@@ -1,0 +1,125 @@
+#!/usr/bin/env python3
+"""
+Simplified DCF Model
+
+This script calculates the Enterprise Value (EV) using a simplified DCF approach.
+It prompts you for the necessary input parameters, then prints the resulting EV.
+
+How to Use:
+-----------
+1. Save this script in your GitHub workspace as simplified_dcf.py.
+2. Open a terminal or command prompt in the directory containing simplified_dcf.py.
+3. Run: python simplified_dcf.py
+4. When prompted, enter each parameter (numeric input). See parameter descriptions below.
+
+Inputs (prompted in order):
+---------------------------
+1)  FCF0  : Latest available free cash flow at t = 0 (e.g., 100).
+2)  wE    : Weight of equity in capital structure (e.g., 0.60).
+3)  wD    : Weight of debt in capital structure (e.g., 0.40).
+4)  rD    : Company's cost of debt (e.g., 0.05 for 5%).
+5)  rf    : Risk-free rate (e.g., 0.02 for 2%).
+6)  beta  : Systematic risk factor in CAPM (e.g., 1.2).
+7)  MRP   : Market risk premium (e.g., 0.05 for 5%).
+8)  tau   : Corporate tax rate (e.g., 0.21 for 21%).
+9)  gM    : Medium-term annual growth rate of FCF (e.g., 0.03 for 3%).
+10) gL    : Long-term annual growth rate of FCF (e.g., 0.02 for 2%).
+11) T     : Number of years in the medium term (e.g., 5).
+
+Output:
+-------
+- Enterprise Value (EV): Sum of discounted medium-term FCFs plus discounted terminal value.
+
+Formula Reference:
+-----------------
+EV = Σ [ FCF0 × (1 + gM)^t / (1 + wacc)^t ] for t = 1..T
+    + [ Terminal Value / (1 + wacc)^T ]
+
+where Terminal Value = [ FCF0 × (1 + gM)^(T+1) ] / (wacc - gL),
+and wacc = wE*rE + wD*rD*(1 - tau), with rE = rf + beta × MRP.
+"""
+
+def enterprise_value(FCF0, wE, wD, rD, rf, beta, MRP, tau, gM, gL, T):
+    """
+    Calculate the Enterprise Value (EV) using a simplified DCF approach.
+
+    Parameters
+    ----------
+    FCF0 : float
+        Latest available free cash flow (at t = 0).
+    wE : float
+        Weight of equity in capital structure (0.0 < wE < 1.0).
+    wD : float
+        Weight of debt in capital structure (0.0 < wD < 1.0).
+    rD : float
+        Company’s cost of debt (e.g., 0.05 for 5%).
+    rf : float
+        Risk-free rate (e.g., 0.02 for 2%).
+    beta : float
+        Systematic risk factor in CAPM model (e.g., 1.2).
+    MRP : float
+        Market risk premium (e.g., 0.05 for 5%).
+    tau : float
+        Corporate tax rate (e.g., 0.21 for 21%).
+    gM : float
+        Medium-term annual growth rate of free cash flows (e.g., 0.03 for 3%).
+    gL : float
+        Long-term annual growth rate of free cash flows (e.g., 0.02 for 2%).
+    T : int
+        Number of years in the medium term (e.g., 5).
+
+    Returns
+    -------
+    float
+        Estimated enterprise value from the simplified DCF model.
+    """
+
+    # 1) Compute cost of equity (CAPM):
+    rE = rf + beta * MRP
+
+    # 2) Compute WACC:
+    wacc = wE * rE + wD * rD * (1 - tau)
+
+    # 3) Present value of medium-term FCF (t = 1 to T):
+    present_value_FCF = 0.0
+    for t in range(1, T + 1):
+        fcf_t = FCF0 * (1 + gM)**t
+        present_value_FCF += fcf_t / ((1 + wacc)**t)
+
+    # 4) Terminal Value at year T:
+    terminal_value = (FCF0 * (1 + gM)**(T + 1)) / (wacc - gL)
+
+    # 5) Discount the terminal value to present:
+    discounted_TV = terminal_value / ((1 + wacc)**T)
+
+    # 6) Enterprise Value:
+    EV = present_value_FCF + discounted_TV
+
+    return EV
+
+
+def main():
+    print("=== Simplified DCF Model Calculation ===")
+    print("Please enter the following parameters (numeric values).")
+
+    # Prompt for inputs:
+    FCF0 = float(input("1)  FCF0 (latest FCF at t=0): "))
+    wE   = float(input("2)  wE (weight of equity): "))
+    wD   = float(input("3)  wD (weight of debt): "))
+    rD   = float(input("4)  rD (cost of debt): "))
+    rf   = float(input("5)  rf (risk-free rate): "))
+    beta = float(input("6)  beta (systematic risk factor): "))
+    MRP  = float(input("7)  MRP (market risk premium): "))
+    tau  = float(input("8)  tau (corporate tax rate): "))
+    gM   = float(input("9)  gM (medium-term growth rate): "))
+    gL   = float(input("10) gL (long-term growth rate): "))
+    T    = int(input("11) T (number of medium-term years): "))
+
+    # Calculate EV:
+    ev = enterprise_value(FCF0, wE, wD, rD, rf, beta, MRP, tau, gM, gL, T)
+
+    print(f"\nEstimated Enterprise Value (EV): {ev:,.2f}")
+
+
+if __name__ == "__main__":
+    main()
