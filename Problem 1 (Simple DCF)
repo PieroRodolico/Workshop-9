@@ -5,13 +5,6 @@ Simplified DCF Model
 This script calculates the Enterprise Value (EV) using a simplified DCF approach.
 It prompts you for the necessary input parameters, then prints the resulting EV.
 
-How to Use:
------------
-1. Save this script in your GitHub workspace as simplified_dcf.py.
-2. Open a terminal or command prompt in the directory containing simplified_dcf.py.
-3. Run: python simplified_dcf.py
-4. When prompted, enter each parameter (numeric input). See parameter descriptions below.
-
 Inputs (prompted in order):
 ---------------------------
 1)  FCF0  : Latest available free cash flow at t = 0 (e.g., 100).
